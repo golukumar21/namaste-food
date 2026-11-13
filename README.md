@@ -56,3 +56,8 @@ import { Component } from "path";
 - useState() - Superpowerful State Variables in react
 - useEffect()
 - Whenever a state Variable changes, React will Re-render the component.
+
+# 2 types of Routing in Web Apps
+
+- Client Side Routing
+- Server Side Routing
