@@ -1,34 +1,25 @@
 import RestaurantCard from "./RestaurantCard";
-import resList from "../utils/mockData";
-import { useEffect, useState } from "react";
+import useRestaurantsCard from "../utils/useRestaurantsCard";
+import { useState } from "react";
 import Shimmer from "./Shimmer";
 import { Link } from "react-router-dom";
+import useOnlineStatus from "../utils/useOnlineStatus";
 
 const Body = () => {
-  // LocalState Variable - Super powerful variable
-  const [listOfRestaurants, setListOfRestaurant] = useState([]);
-  const [filteredRestaurant, setfilteredRestaurant] = useState([]);
-
-  useEffect(() => {
-    fetchData();
-  }, []);
+  const listOfRestaurants = useRestaurantsCard();
+  const filteredRestaurant = useRestaurantsCard();
 
   const [searchText, setSearchText] = useState("");
 
-  // Whenever state variables update, react triggers a reconciliation cycle(re-renders the component)
-  console.log("Body Rendered");
+  const onlineStatus = useOnlineStatus();
 
-  const fetchData = async () => {
-    const data = await fetch("https://namastedev.com/api/v1/listRestaurants");
-
-    const json = await data.json();
-    setListOfRestaurant(
-      json.data.data.cards[1].card.card.gridElements.infoWithStyle.restaurants,
+  if (onlineStatus === false) {
+    return (
+      <h1>
+        Looks like you're offline!! Please check your internet connection;
+      </h1>
     );
-    setfilteredRestaurant(
-      json.data.data.cards[1].card.card.gridElements.infoWithStyle.restaurants,
-    );
-  };
+  }
 
   return listOfRestaurants.length === 0 ? (
     <Shimmer />
