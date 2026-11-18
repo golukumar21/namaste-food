@@ -18,10 +18,12 @@
   },
   "homepage": "https://github.com/golukumar21/namaste-food#readme",
   "dependencies": {
+    "@tailwindcss/postcss": "^4.3.5",
     "parcel": "^2.16.4",
     "react": "^19.3.1",
     "react-dom": "^19.3.1",
-    "react-router-dom": "^7.18.5"
+    "react-router-dom": "^7.18.5",
+    "tailwindcss": "^4.3.5"
   },
   "@parcel/resolver-default": {
     "packageExports": true
