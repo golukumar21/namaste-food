@@ -1,15 +1,37 @@
-import RestaurantCard from "./RestaurantCard";
+import RestaurantCard, { withVegLabel } from "./RestaurantCard";
 import useRestaurantsCard from "../utils/useRestaurantsCard";
-import { useState } from "react";
+import { useContext } from "react";
+import { useEffect, useState } from "react";
 import Shimmer from "./Shimmer";
 import { Link } from "react-router-dom";
 import useOnlineStatus from "../utils/useOnlineStatus";
+import UserContext from "../utils/UserContext";
 
 const Body = () => {
-  const listOfRestaurants = useRestaurantsCard();
-  const filteredRestaurant = useRestaurantsCard();
+  const [listOfRestaurants, setListOfRestaurant] = useState([]);
+  const [filteredRestaurant, setFillteredRestaurantList] = useState([]);
 
   const [searchText, setSearchText] = useState("");
+
+  const { loggedInUser, setUserName } = useContext(UserContext);
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const fetchData = async () => {
+    const data = await fetch("https://namastedev.com/api/v1/listRestaurants");
+
+    const json = await data.json();
+    setListOfRestaurant(
+      json.data.data.cards[1].card.card.gridElements.infoWithStyle.restaurants,
+    );
+    setFillteredRestaurantList(
+      json.data.data.cards[1].card.card.gridElements.infoWithStyle.restaurants,
+    );
+  };
+
+  const RestaurantCardVeg = withVegLabel(RestaurantCard);
 
   const onlineStatus = useOnlineStatus();
 
@@ -24,12 +46,12 @@ const Body = () => {
   return listOfRestaurants.length === 0 ? (
     <Shimmer />
   ) : (
-    <div className="body @container">
-      <div className="filter flex">
-        <div className="search">
+    <>
+      <div className="flex wrap">
+        <div className="search-container p-5 my-5">
           <input
             type="text"
-            className="search-box m-2 p-2 border border-solid border-black"
+            className="m-2 p-2 border border-solid border-black"
             placeholder="Type to search..."
             value={searchText}
             onChange={(e) => {
@@ -45,36 +67,56 @@ const Body = () => {
                   .toLowerCase()
                   .includes(searchText.toLowerCase());
               });
-              setfilteredRestaurant(filteredList);
+              setFillteredRestaurantList(filteredList);
             }}
           >
             Search
           </button>
         </div>
-        <button
-          className="filter-btn px-4 py-2 bg-gray-100 m-4 cursor-pointer rounded-lg"
-          onClick={() => {
-            // Filter logic here
-            const filteredList = listOfRestaurants.filter(
-              (res) => res.avgRating > 4.5,
-            );
-            setListOfRestaurant(filteredList);
-          }}
-        >
-          Top Rated Restaurants
-        </button>
+        <div className="p-5 m-5">
+          <button
+            className="p-2 m-4 bg-gray-100 cursor-pointer rounded-lg"
+            onClick={() => {
+              // Filter logic here
+              const filteredList = listOfRestaurants.filter(
+                (res) => res.avgRating > 4.5,
+              );
+              console.log(filteredList);
+              setFillteredRestaurantList(filteredList);
+            }}
+          >
+            Top Rated Restaurants
+          </button>
+        </div>
+
+        <div className="search m-4 p-4 flex items-center">
+          <label>UserName :</label>
+          <input
+            type="text"
+            className="m-2 p-2 border border-solid border-black"
+            value={loggedInUser}
+            onChange={(e) => setUserName(e.target.value)}
+          />
+        </div>
       </div>
-      <div className="res-container flex flex-wrap">
+      <div className="flex flex-wrap">
         {filteredRestaurant.map((restaurant) => (
           <Link
             key={restaurant?.info?.id}
             to={"/restaurants/" + restaurant?.info.id}
           >
-            <RestaurantCard resData={restaurant} />
+            {
+              /** if the restaurant is veg or non veg, show a label on it */
+              restaurant?.info.veg ? (
+                <RestaurantCardVeg resData={restaurant} />
+              ) : (
+                <RestaurantCard resData={restaurant} />
+              )
+            }
           </Link>
         ))}
       </div>
-    </div>
+    </>
   );
 };
 
